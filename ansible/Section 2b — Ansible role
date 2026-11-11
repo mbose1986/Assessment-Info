@@ -1,0 +1,71 @@
+
+Assessment
+******************************************************************************
+Section 2 — Infrastructure as Code
+•	2b — Ansible (rolling broker config change)
+==============================
+In ansible/, provide a small role that:
+•	Templates a change to server.properties (e.g., num.replica.fetchers=4).
+•	Restarts brokers one at a time (serial: 1).
+•	Before each restart, checks that under-replicated partitions = 0 and fails the play if not.
+•	Does not restart brokers on a second run if nothing changed (idempotence).
+•	Includes a short README explaining what it does and how to dry-run it.
+We care about safety and idempotence more than YAML volume.
+===============================
+Answer:
+
+ansible/
+├── site.yml
+├── inventory.ini
+├── roles/
+│   └── kafka_broker_config/
+│       ├── tasks/
+│       │   └── main.yml
+│       └── templates/
+│           └── server.properties.j2
+└── README.md
+
+task.yml
+
+---
+- name: Kafka rolling configuration update
+  hosts: kafka_brokers
+  become: true
+  serial: 1
+
+  roles:
+    - kafka_broker_config
+
+---
+- name: Restart Kafka broker
+  ansible.builtin.service:
+    name: "{{ kafka_service_name }}"
+    state: restarted
+
+inventory.yml
+
+kafka_server_properties_path: /etc/kafka/server.properties
+
+kafka_config_owner: kafka
+
+kafka_service_name: confluent-server
+kafka_broker_port: 9092
+host:
+
+kafka_server_properties:
+  broker.id: 1
+  num.replica.fetchers: 4
+  log.dirs: /var/lib/kafka/data
+
+kafka_healthcheck_host: localhost
+
+===================================================================
+
+
+
+
+
+
+
+
+
