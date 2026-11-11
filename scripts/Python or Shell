@@ -1,0 +1,29 @@
+
+Assessment---------
+------------------------------------------------
+Section 3 — Scripting (Python or Shell)
+Option B — Shell: scripts/urp_check.sh
+===========================================================
+•	Runs kafka-topics --describe --under-replicated-partitions and reports the count.
+============================
+Output = $(kafka-topics --describe --under-replicated-partitions 2>&1)
+Count = $(printf ‘%s\n’, “Output” | grep -c “partition:”)
+If (count >0); then
+    Status=”under-replicated”
+    Exit-code=2
+else
+    Status=”ok/healthy”
+    Exit-code=0
+
+•	Exit code 0 if count is 0, exit code 2 if greater than 0.
+
+If (count >0); then
+    Status =” under-replicated”
+    Exit-code=2
+else
+    Status = ”healthy”
+    Exit-code=0
+
+•	Add --json to emit a small JSON summary.
+•	Use set -euo pipefail.
+
